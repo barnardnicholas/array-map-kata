@@ -11,6 +11,16 @@ Array.prototype.schmap = function (handler = (element, index, array) => element,
     return result;
 };
 
+Array.prototype.schmeduce = function(callback = (accumulator, currentValue, currentIndex, array) => accumulator, initialValue) {
+    let acc = initialValue;
+
+    for (let i = 0; i < this.length; i++) {
+        acc = callback(acc, this[i], i, this);
+    }
+
+    return acc;
+}
+
 const array = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 const array2 = [99, 999, 9999, 99999];
 
@@ -26,4 +36,28 @@ describe('Array.prototype.schmap', () => {
         array.schmap(e => e + 1);
         expect(array).to.eql(arrayCopy);
     });
+    it('should not mutate original array', () => {
+        const arrayCopy = [...array];
+        array.schmap(e => e + 1);
+        expect(array).to.eql(arrayCopy);
+    });
+});
+
+describe('Array.prototype.schmeduce', () => {
+    it('should work', () => {
+        const arrayCopy = [...array];
+        expect(array.schmeduce((acc, curr) => acc + curr,0)).to.be.a('number');
+        expect(array.schmeduce((acc, curr) => acc + curr,0)).to.equal(45);
+
+         const result = array.schmeduce((acc, curr) => {
+            return {...acc, [curr]: curr}
+        },{});
+        expect(result).to.haveOwnProperty(0);
+        expect(result).to.haveOwnProperty(5);
+        expect(result).to.haveOwnProperty(9);
+        array.forEach(number => expect(result[number]).to.equal(number));
+        
+        expect(array).to.eql(arrayCopy);
+    });
+    
 });
