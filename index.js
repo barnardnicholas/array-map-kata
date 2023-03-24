@@ -21,6 +21,28 @@ Array.prototype.schmeduce = function(callback = (accumulator, currentValue, curr
     return acc;
 }
 
+Array.prototype.schmoup = function(callback = (element) => element, thisArg) {
+    const _this = thisArg ? thisArg : this;
+    const result = {}
+    for (let i = 0; i < _this.length; i++) {
+        const key = `${callback(_this[i], i, _this)}`;
+        if (!!result[key]) result[key].push(_this[i])
+        else result[key] = [_this[i]];
+    }
+    return result
+}
+
+Array.prototype.schmoupToMap = function(callback = (element) => element, thisArg) {
+    const _this = thisArg ? thisArg : this;
+    const result = new Map();
+    for (let i = 0; i < _this.length; i++) {
+        const key = `${callback(_this[i], i, _this)}`;
+        if (result.has(key)) result.set(key, [...result.get(key), _this[i]])
+        else result.set(key, [_this[i]]);
+    }
+    return result
+}
+
 const array = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 const array2 = [99, 999, 9999, 99999];
 
@@ -61,3 +83,15 @@ describe('Array.prototype.schmeduce', () => {
     });
     
 });
+
+const inventory = [
+    { name: "asparagus", type: "vegetables", quantity: 9 },
+    { name: "bananas", type: "fruit", quantity: 5 },
+    { name: "goat", type: "meat", quantity: 23 },
+    { name: "cherries", type: "fruit", quantity: 12 },
+    { name: "fish", type: "meat", quantity: 22 },
+  ];
+
+  const result = inventory.schmoupToMap(({type}) => type)
+  console.log(result)
+
